@@ -482,22 +482,32 @@
     .gallery-item {
       position: relative;
       aspect-ratio: 4 / 3;
+      margin: 0;
       border-radius: 12px;
+      overflow: hidden;
       background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: rgba(255, 255, 255, 0.15);
-      font-size: 2.4rem;
-      font-weight: 700;
       border: 1px solid var(--c-border);
       transition: border-color var(--t-smooth), transform var(--t-smooth);
-      letter-spacing: -0.2em;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      cursor: zoom-in;
+      transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                  filter 0.4s ease;
     }
 
     .gallery-item:hover {
       border-color: rgba(249, 115, 22, 0.5);
       transform: scale(1.02);
+    }
+
+    .gallery-item:hover img {
+      transform: scale(1.06);
+      filter: brightness(1.05);
     }
 
     /* ============================================================
@@ -849,6 +859,57 @@
     .footer-bottom a:hover { color: var(--c-accent); }
 
     /* ============================================================
+       ЛАЙТБОКС
+       ============================================================ */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(0, 0, 0, 0.92);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+
+    .lightbox.is-open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .lightbox-img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      width: 48px;
+      height: 48px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 50%;
+      color: #fff;
+      font-size: 1.6rem;
+      line-height: 1;
+      cursor: pointer;
+      transition: background 0.22s ease, border-color 0.22s ease;
+    }
+
+    .lightbox-close:hover {
+      background: rgba(249, 115, 22, 0.25);
+      border-color: rgba(249, 115, 22, 0.6);
+    }
+
+    /* ============================================================
        АДАПТИВ
        ============================================================ */
     @media (max-width: 1100px) {
@@ -973,6 +1034,8 @@
 
       .principles-grid { grid-template-columns: 1fr; }
       .requisites-list { grid-template-columns: 1fr; }
+      .lightbox { padding: 16px; }
+      .lightbox-close { top: 10px; right: 10px; }
     }
 
     @media (max-width: 700px) {
@@ -1243,14 +1306,30 @@
       </div>
 
       <div class="gallery-grid">
-        <div class="gallery-item">»</div>
-        <div class="gallery-item">»</div>
-        <div class="gallery-item">»</div>
-        <div class="gallery-item">»</div>
-        <div class="gallery-item">»</div>
-        <div class="gallery-item">»</div>
-        <div class="gallery-item">»</div>
-        <div class="gallery-item">»</div>
+        <figure class="gallery-item">
+          <img src="qwerty/9.jpg"  alt="Рабочий пост автосервиса NOIR" loading="lazy" decoding="async" width="800" height="600">
+        </figure>
+        <figure class="gallery-item">
+          <img src="qwerty/10.jpg" alt="Диагностическое оборудование NOIR" loading="lazy" decoding="async" width="800" height="600">
+        </figure>
+        <figure class="gallery-item">
+          <img src="qwerty/11.jpg" alt="Ремонтная зона автосервиса NOIR" loading="lazy" decoding="async" width="800" height="600">
+        </figure>
+        <figure class="gallery-item">
+          <img src="qwerty/12.jpg" alt="Подъёмник в автосервисе NOIR" loading="lazy" decoding="async" width="800" height="600">
+        </figure>
+        <figure class="gallery-item">
+          <img src="qwerty/13.jpg" alt="Инструмент мастера NOIR" loading="lazy" decoding="async" width="800" height="600">
+        </figure>
+        <figure class="gallery-item">
+          <img src="qwerty/14.jpg" alt="Приёмка автомобиля в NOIR" loading="lazy" decoding="async" width="800" height="600">
+        </figure>
+        <figure class="gallery-item">
+          <img src="qwerty/15.jpg" alt="Зона ожидания клиентов NOIR" loading="lazy" decoding="async" width="800" height="600">
+        </figure>
+        <figure class="gallery-item">
+          <img src="qwerty/16.jpg" alt="Проверка тормозной системы в NOIR" loading="lazy" decoding="async" width="800" height="600">
+        </figure>
       </div>
     </div>
   </section>
@@ -1459,10 +1538,19 @@
     </div>
   </footer>
 
+  <!-- ============================================================
+       ЛАЙТБОКС ГАЛЕРЕИ
+       ============================================================ -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Просмотр фото">
+    <button class="lightbox-close" type="button" aria-label="Закрыть">×</button>
+    <img class="lightbox-img" src="" alt="">
+  </div>
+
   <script>
     (function () {
       'use strict';
 
+      /* ---------- Бургер-меню ---------- */
       function initBurgerMenu() {
         const burger = document.getElementById('pageBurger');
         const nav = document.getElementById('pageNav');
@@ -1507,7 +1595,47 @@
         });
       }
 
+      /* ---------- Лайтбокс галереи ---------- */
+      function initLightbox() {
+        const lightbox = document.getElementById('lightbox');
+        if (!lightbox) return;
+
+        const lightboxImg = lightbox.querySelector('.lightbox-img');
+        const closeBtn = lightbox.querySelector('.lightbox-close');
+        const items = document.querySelectorAll('.gallery-item img');
+
+        if (!items.length) return;
+
+        function openLightbox(src, alt) {
+          lightboxImg.src = src;
+          lightboxImg.alt = alt || '';
+          lightbox.classList.add('is-open');
+          document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+          lightbox.classList.remove('is-open');
+          document.body.style.overflow = '';
+          setTimeout(() => {
+            if (!lightbox.classList.contains('is-open')) lightboxImg.src = '';
+          }, 260);
+        }
+
+        items.forEach(img => {
+          img.addEventListener('click', () => openLightbox(img.src, img.alt));
+        });
+
+        closeBtn.addEventListener('click', closeLightbox);
+        lightbox.addEventListener('click', (e) => {
+          if (e.target === lightbox) closeLightbox();
+        });
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && lightbox.classList.contains('is-open')) closeLightbox();
+        });
+      }
+
       initBurgerMenu();
+      initLightbox();
     })();
   </script>
 
